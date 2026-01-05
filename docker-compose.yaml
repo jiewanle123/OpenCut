@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: opencut
-      POSTGRES_PASSWORD: opencutthegoat
+      POSTGRES_PASSWORD: opencut
       POSTGRES_DB: opencut
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -58,7 +58,7 @@ services:
       - "3100:3000" # app is running on 3000 so we run this at 3100
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://opencut:opencutthegoat@db:5432/opencut
+      - DATABASE_URL=postgresql://opencut:opencut@db:5432/opencut
       - BETTER_AUTH_URL=http://localhost:3000
       - BETTER_AUTH_SECRET=your-production-secret-key-here
       - UPSTASH_REDIS_REST_URL=http://serverless-redis-http:80

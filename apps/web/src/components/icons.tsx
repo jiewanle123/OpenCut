@@ -231,3 +231,25 @@ export function TransitionUpIcon({
     </svg>
   );
 }
+
+export function MenuIcon({
+  className = "",
+  size = 16,
+}: {
+  className?: string;
+  size?: number;
+}) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 141 111"
+      fill="none"
+      className={className}
+    >
+      <rect y="19.5" width="141" height="12" rx="7.5" fill="currentColor" />
+      <rect y="67.5" width="141" height="12" rx="7.5" fill="currentColor" />
+    </svg>
+  );
+}

@@ -2,6 +2,7 @@ import { Header } from "@/components/header";
 import Prose from "@/components/ui/prose";
 import { Separator } from "@/components/ui/separator";
 import { getPosts, getSinglePost, processHtmlContent } from "@/lib/blog-query";
+import { Post, Author } from "@/types/blog";
 import { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -16,7 +17,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const slug = (await params).slug;
 
-  const data = await getSinglePost(slug);
+  const data = await getSinglePost({ slug });
 
   if (!data || !data.post) return {};
 
@@ -49,9 +50,7 @@ export async function generateMetadata({
       title: data.post.title,
       description: data.post.description,
       publishedTime: new Date(data.post.publishedAt).toISOString(),
-      authors: [
-        ...data.post.authors.map((author: { name: string }) => author.name),
-      ],
+      authors: data.post.authors.map((author: Author) => author.name),
     },
   };
 }
@@ -67,77 +66,91 @@ export async function generateStaticParams() {
 
 async function Page({ params }: PageProps) {
   const slug = (await params).slug;
-  const data = await getSinglePost(slug);
+  const data = await getSinglePost({ slug });
   if (!data || !data.post) return notFound();
 
-  const html = await processHtmlContent(data.post.content);
-
-  const formattedDate = new Date(data.post.publishedAt).toLocaleDateString(
-    "en-US",
-    {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }
-  );
+  const html = await processHtmlContent({ html: data.post.content });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       <Header />
-
-      <main className="relative">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-96 h-96 bg-linear-to-br from-muted/20 to-transparent rounded-full blur-3xl" />
-          <div className="absolute top-1/2 -left-40 w-80 h-80 bg-linear-to-tr from-muted/10 to-transparent rounded-full blur-3xl" />
-        </div>
-
-        <div className="relative container max-w-3xl mx-auto px-4 py-16">
-          <div className="text-center mb-6">
-            {data.post.coverImage && (
-              <div className="relative aspect-video rounded-lg overflow-hidden mb-6">
-                <Image
-                  src={data.post.coverImage}
-                  alt={data.post.title}
-                  loading="eager"
-                  fill
-                  className="object-cover rounded-lg"
-                />
-              </div>
-            )}
-            <div className="flex items-center justify-center mb-6">
-              <time dateTime={data.post.publishedAt.toString()}>
-                {formattedDate}
-              </time>
-            </div>
-
-            <h1 className="text-5xl md:text-4xl font-bold tracking-tight mb-6">
-              {data.post.title}
-            </h1>
-            <div className="flex items-center justify-center gap-2">
-              {data.post.authors[0] && (
-                <>
-                  <Image
-                    src={data.post.authors[0].image}
-                    alt={data.post.authors[0].name}
-                    width={36}
-                    height={36}
-                    loading="eager"
-                    className="aspect-square shrink-0 size-8 rounded-full"
-                  />
-                  <p className="text-muted-foreground">
-                    {data.post.authors[0].name}
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-          <Separator />
-          <section className="mt-14">
-            <Prose html={html} />
-          </section>
-        </div>
+      <main className="container mx-auto max-w-3xl px-4 py-16">
+        <PostHeader post={data.post} />
+        <Separator />
+        <PostContent html={html} />
       </main>
     </div>
+  );
+}
+
+function PostHeader({ post }: { post: Post }) {
+  const formattedDate = new Date(post.publishedAt).toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  return (
+    <>
+      {post.coverImage && <PostCoverImage post={post} />}
+      <PostMeta date={formattedDate} publishedAt={post.publishedAt} />
+      <PostTitle title={post.title} />
+      <PostAuthor author={post.authors[0]} />
+    </>
+  );
+}
+
+function PostCoverImage({ post }: { post: Post }) {
+  return (
+    <div className="relative aspect-video overflow-hidden rounded-lg">
+      <Image
+        src={post.coverImage}
+        alt={post.title}
+        loading="eager"
+        fill
+        className="rounded-lg object-cover"
+      />
+    </div>
+  );
+}
+
+function PostMeta({ date, publishedAt }: { date: string; publishedAt: Date }) {
+  return (
+    <div className="flex items-center justify-center">
+      <time dateTime={publishedAt.toString()}>{date}</time>
+    </div>
+  );
+}
+
+function PostTitle({ title }: { title: string }) {
+  return (
+    <h1 className="text-5xl font-bold tracking-tight md:text-4xl">{title}</h1>
+  );
+}
+
+function PostAuthor({ author }: { author?: Author }) {
+  if (!author) return null;
+
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <Image
+        src={author.image}
+        alt={author.name}
+        width={36}
+        height={36}
+        loading="eager"
+        className="aspect-square size-8 shrink-0 rounded-full"
+      />
+      <p className="text-muted-foreground">{author.name}</p>
+    </div>
+  );
+}
+
+function PostContent({ html }: { html: string }) {
+  return (
+    <section className="pt-8">
+      <Prose html={html} />
+    </section>
   );
 }
 

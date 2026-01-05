@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { ArrowRightIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import { SOCIAL_LINKS } from "@/constants/app-constants";
 
 export function Onboarding() {
   const [step, setStep] = useState(0);
@@ -68,7 +69,7 @@ export function Onboarding() {
           <div className="space-y-5">
             <div className="space-y-3">
               <Title title={getStepTitle()} />
-              <Description description="Join our [Discord](https://discord.gg/zmR9N35cjK), chat with cool people and share feedback to help make OpenCut the best editor ever." />
+              <Description description={`Join our [Discord](${SOCIAL_LINKS.discord}), chat with cool people and share feedback to help make OpenCut the best editor ever.`} />
             </div>
             <NextButton onClick={handleClose}>Finish</NextButton>
           </div>

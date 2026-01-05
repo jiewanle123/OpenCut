@@ -3,7 +3,7 @@ import { z } from "zod";
 import { AwsClient } from "aws4fetch";
 import { nanoid } from "nanoid";
 import { env } from "@/env";
-import { baseRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { isTranscriptionConfigured } from "@/lib/transcription-utils";
 
 const uploadRequestSchema = z.object({
@@ -21,15 +21,11 @@ const apiResponseSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limiting
-    const ip = request.headers.get("x-forwarded-for") ?? "anonymous";
-    const { success } = await baseRateLimit.limit(ip);
-
-    if (!success) {
+    const { limited } = await checkRateLimit({ request });
+    if (limited) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
-    // Check transcription configuration
     const transcriptionCheck = isTranscriptionConfigured();
     if (!transcriptionCheck.configured) {
       console.error(
@@ -46,7 +42,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse and validate request body
     const rawBody = await request.json().catch(() => null);
     if (!rawBody) {
       return NextResponse.json(
@@ -68,17 +63,14 @@ export async function POST(request: NextRequest) {
 
     const { fileExtension } = validationResult.data;
 
-    // Initialize R2 client
     const client = new AwsClient({
       accessKeyId: env.R2_ACCESS_KEY_ID,
       secretAccessKey: env.R2_SECRET_ACCESS_KEY,
     });
 
-    // Generate unique filename with timestamp
     const timestamp = Date.now();
     const fileName = `audio/${timestamp}-${nanoid()}.${fileExtension}`;
 
-    // Create presigned URL
     const url = new URL(
       `https://${env.R2_BUCKET_NAME}.${env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com/${fileName}`
     );
@@ -93,7 +85,6 @@ export async function POST(request: NextRequest) {
       throw new Error("Failed to generate presigned URL");
     }
 
-    // Prepare and validate response
     const responseData = {
       uploadUrl: signed.url,
       fileName,

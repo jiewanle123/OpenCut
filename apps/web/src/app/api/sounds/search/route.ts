@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { env } from "@/env";
-import { baseRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const searchParamsSchema = z.object({
   q: z.string().max(500, "Query too long").optional(),
@@ -88,12 +88,67 @@ const apiResponseSchema = z.object({
   minRating: z.number().optional(),
 });
 
+function buildSortParameter({ query, sort }: { query?: string; sort: string }) {
+  if (!query) return `${sort}_desc`;
+  return sort === "score" ? "score" : `${sort}_desc`;
+}
+
+function applyEffectsFilters({ 
+  params, 
+  min_rating, 
+  commercial_only 
+}: { 
+  params: URLSearchParams; 
+  min_rating: number; 
+  commercial_only: boolean; 
+}) {
+  params.append("filter", "duration:[* TO 30.0]");
+  params.append("filter", `avg_rating:[${min_rating} TO *]`);
+
+  if (commercial_only) {
+    params.append(
+      "filter",
+      'license:("Attribution" OR "Creative Commons 0" OR "Attribution Noncommercial" OR "Attribution Commercial")'
+    );
+  }
+
+  params.append(
+    "filter",
+    "tag:sound-effect OR tag:sfx OR tag:foley OR tag:ambient OR tag:nature OR tag:mechanical OR tag:electronic OR tag:impact OR tag:whoosh OR tag:explosion"
+  );
+}
+
+function transformFreesoundResult(result: z.infer<typeof freesoundResultSchema>) {
+  return {
+    id: result.id,
+    name: result.name,
+    description: result.description,
+    url: result.url,
+    previewUrl:
+      result.previews?.["preview-hq-mp3"] ||
+      result.previews?.["preview-lq-mp3"],
+    downloadUrl: result.download,
+    duration: result.duration,
+    filesize: result.filesize,
+    type: result.type,
+    channels: result.channels,
+    bitrate: result.bitrate,
+    bitdepth: result.bitdepth,
+    samplerate: result.samplerate,
+    username: result.username,
+    tags: result.tags,
+    license: result.license,
+    created: result.created,
+    downloads: result.num_downloads || 0,
+    rating: result.avg_rating || 0,
+    ratingCount: result.num_ratings || 0,
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
-    const ip = request.headers.get("x-forwarded-for") ?? "anonymous";
-    const { success } = await baseRateLimit.limit(ip);
-
-    if (!success) {
+    const { limited } = await checkRateLimit({ request });
+    if (limited) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
@@ -141,12 +196,7 @@ export async function GET(request: NextRequest) {
 
     const baseUrl = "https://freesound.org/apiv2/search/text/";
 
-    // Use score sorting for search queries, downloads for top sounds
-    const sortParam = query
-      ? sort === "score"
-        ? "score"
-        : `${sort}_desc`
-      : `${sort}_desc`;
+    const sortParam = buildSortParameter({ query, sort });
 
     const params = new URLSearchParams({
       query: query || "",
@@ -158,23 +208,9 @@ export async function GET(request: NextRequest) {
         "id,name,description,url,previews,download,duration,filesize,type,channels,bitrate,bitdepth,samplerate,username,tags,license,created,num_downloads,avg_rating,num_ratings",
     });
 
-    // Always apply sound effect filters (since we're primarily a sound effects search)
-    if (type === "effects" || !type) {
-      params.append("filter", "duration:[* TO 30.0]");
-      params.append("filter", `avg_rating:[${min_rating} TO *]`);
-
-      // Filter by license if commercial_only is true
-      if (commercial_only) {
-        params.append(
-          "filter",
-          'license:("Attribution" OR "Creative Commons 0" OR "Attribution Noncommercial" OR "Attribution Commercial")'
-        );
-      }
-
-      params.append(
-        "filter",
-        "tag:sound-effect OR tag:sfx OR tag:foley OR tag:ambient OR tag:nature OR tag:mechanical OR tag:electronic OR tag:impact OR tag:whoosh OR tag:explosion"
-      );
+    const isEffectsSearch = type === "effects" || !type;
+    if (isEffectsSearch) {
+      applyEffectsFilters({ params, min_rating, commercial_only });
     }
 
     const response = await fetch(`${baseUrl}?${params.toString()}`);
@@ -204,30 +240,7 @@ export async function GET(request: NextRequest) {
 
     const data = freesoundValidation.data;
 
-    const transformedResults = data.results.map((result) => ({
-      id: result.id,
-      name: result.name,
-      description: result.description,
-      url: result.url,
-      previewUrl:
-        result.previews?.["preview-hq-mp3"] ||
-        result.previews?.["preview-lq-mp3"],
-      downloadUrl: result.download,
-      duration: result.duration,
-      filesize: result.filesize,
-      type: result.type,
-      channels: result.channels,
-      bitrate: result.bitrate,
-      bitdepth: result.bitdepth,
-      samplerate: result.samplerate,
-      username: result.username,
-      tags: result.tags,
-      license: result.license,
-      created: result.created,
-      downloads: result.num_downloads || 0,
-      rating: result.avg_rating || 0,
-      ratingCount: result.num_ratings || 0,
-    }));
+    const transformedResults = data.results.map(transformFreesoundResult);
 
     const responseData = {
       count: data.count,

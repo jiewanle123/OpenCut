@@ -5,6 +5,7 @@ import Link from "next/link";
 import { RiDiscordFill, RiTwitterXLine } from "react-icons/ri";
 import { FaGithub } from "react-icons/fa6";
 import Image from "next/image";
+import { DEFAULT_LOGO_URL, SOCIAL_LINKS } from "@/constants/app-constants";
 
 export function Footer() {
   return (
@@ -20,7 +21,7 @@ export function Footer() {
           <div className="md:col-span-1 max-w-sm">
             <div className="flex justify-start items-center gap-2 mb-4">
               <Image 
-                src="/logo.svg" 
+                src={DEFAULT_LOGO_URL} 
                 alt="OpenCut" 
                 width={24} 
                 height={24}
@@ -34,7 +35,7 @@ export function Footer() {
             </p>
             <div className="flex justify-start gap-3">
               <Link
-                href="https://github.com/OpenCut-app/OpenCut"
+                href={SOCIAL_LINKS.github}
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -42,7 +43,7 @@ export function Footer() {
                 <FaGithub className="h-5 w-5" />
               </Link>
               <Link
-                href="https://x.com/OpenCutApp"
+                href={SOCIAL_LINKS.x}
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -50,7 +51,7 @@ export function Footer() {
                 <RiTwitterXLine className="h-5 w-5" />
               </Link>
               <Link
-                href="https://discord.com/invite/Mu3acKZvCp"
+                href={SOCIAL_LINKS.discord}
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -105,7 +106,7 @@ export function Footer() {
                 </li>
                 <li>
                   <Link
-                    href="https://github.com/OpenCut-app/OpenCut/blob/main/README.md"
+                    href={`${SOCIAL_LINKS.github}/blob/main/README.md`}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"

@@ -5,6 +5,7 @@ import { GithubIcon } from "@/components/icons";
 import Link from "next/link";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { SOCIAL_LINKS } from "@/constants/app-constants";
 
 export const metadata: Metadata = {
   title: "Privacy Policy - OpenCut",
@@ -31,7 +32,7 @@ export default function PrivacyPage() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-10">
               <Link
-                href="https://github.com/OpenCut-app/OpenCut"
+                href={SOCIAL_LINKS.github}
                 target="_blank"
               >
                 <Badge variant="secondary" className="gap-2 mb-6">
@@ -192,7 +193,7 @@ export default function PrivacyPage() {
                   <p>
                     View our source code on{" "}
                     <a
-                      href="https://github.com/OpenCut-app/OpenCut"
+                      href={SOCIAL_LINKS.github}
                       target="_blank"
                       rel="noopener"
                       className="text-primary hover:underline"
@@ -212,7 +213,7 @@ export default function PrivacyPage() {
                   <p>
                     Open an issue on our{" "}
                     <a
-                      href="https://github.com/OpenCut-app/OpenCut/issues"
+                      href={`${SOCIAL_LINKS.github}/issues`}
                       target="_blank"
                       rel="noopener"
                       className="text-primary hover:underline"
@@ -228,7 +229,7 @@ export default function PrivacyPage() {
                     </a>
                     , or reach out on{" "}
                     <a
-                      href="https://x.com/opencutapp"
+                      href={SOCIAL_LINKS.x}
                       target="_blank"
                       rel="noopener"
                       className="text-primary hover:underline"

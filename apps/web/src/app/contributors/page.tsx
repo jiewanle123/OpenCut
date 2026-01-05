@@ -13,6 +13,7 @@ import {
 } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { EXTERNAL_TOOLS } from "@/constants/site";
+import { SOCIAL_LINKS } from "@/constants/app-constants";
 
 export const metadata: Metadata = {
   title: "Contributors - OpenCut",
@@ -85,7 +86,7 @@ export default async function ContributorsPage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-20">
               <Link
-                href={"https://github.com/OpenCut-app/OpenCut"}
+                href={SOCIAL_LINKS.github}
                 target="_blank"
               >
                 <Badge variant="secondary" className="gap-2 mb-6">
@@ -229,7 +230,7 @@ export default async function ContributorsPage() {
                   view on GitHub.
                 </p>
                 <Link
-                  href="https://github.com/OpenCut-app/OpenCut/graphs/contributors"
+                  href={`${SOCIAL_LINKS.github}/graphs/contributors`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -300,7 +301,7 @@ export default async function ContributorsPage() {
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
-                    href="https://github.com/OpenCut-app/OpenCut/blob/main/.github/CONTRIBUTING.md"
+                    href={`${SOCIAL_LINKS.github}/blob/main/.github/CONTRIBUTING.md`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -310,7 +311,7 @@ export default async function ContributorsPage() {
                     </Button>
                   </Link>
                   <Link
-                    href="https://github.com/OpenCut-app/OpenCut/issues"
+                    href={`${SOCIAL_LINKS.github}/issues`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

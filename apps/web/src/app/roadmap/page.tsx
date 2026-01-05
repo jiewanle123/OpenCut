@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
+import { SOCIAL_LINKS } from "@/constants/app-constants";
 
 const roadmapItems: {
   title: string;
@@ -129,7 +130,7 @@ export default function RoadmapPage() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-10">
               <Link
-                href="https://github.com/OpenCut-app/OpenCut"
+                href={SOCIAL_LINKS.github}
                 target="_blank"
               >
                 <Badge variant="secondary" className="gap-2 mb-6">
@@ -211,7 +212,7 @@ export default function RoadmapPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
                   <Link
-                    href="https://github.com/OpenCut-app/OpenCut/blob/main/.github/CONTRIBUTING.md"
+                    href={`${SOCIAL_LINKS.github}/blob/main/.github/CONTRIBUTING.md`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -224,7 +225,7 @@ export default function RoadmapPage() {
                     </Badge>
                   </Link>
                   <Link
-                    href="https://github.com/OpenCut-app/OpenCut/issues"
+                    href={`${SOCIAL_LINKS.github}/issues`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

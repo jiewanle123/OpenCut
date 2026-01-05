@@ -4,7 +4,7 @@ import type {
   MarblePost,
   MarblePostList,
   MarbleTagList,
-} from "@/types/post";
+} from "@/types/blog";
 import { unified } from "unified";
 import rehypeParse from "rehype-parse";
 import rehypeStringify from "rehype-stringify";
@@ -16,7 +16,7 @@ const url =
   process.env.NEXT_PUBLIC_MARBLE_API_URL ?? "https://api.marblecms.com";
 const key = process.env.MARBLE_WORKSPACE_KEY ?? "cmd4iw9mm0006l804kwqv0k46";
 
-async function fetchFromMarble<T>(endpoint: string): Promise<T> {
+async function fetchFromMarble<T>({ endpoint }: { endpoint: string }): Promise<T> {
   try {
     const response = await fetch(`${url}/${key}/${endpoint}`);
     if (!response.ok) {
@@ -32,26 +32,26 @@ async function fetchFromMarble<T>(endpoint: string): Promise<T> {
 }
 
 export async function getPosts() {
-  return fetchFromMarble<MarblePostList>("posts");
+  return fetchFromMarble<MarblePostList>({ endpoint: "posts" });
 }
 
 export async function getTags() {
-  return fetchFromMarble<MarbleTagList>("tags");
+  return fetchFromMarble<MarbleTagList>({ endpoint: "tags" });
 }
 
-export async function getSinglePost(slug: string) {
-  return fetchFromMarble<MarblePost>(`posts/${slug}`);
+export async function getSinglePost({ slug }: { slug: string }) {
+  return fetchFromMarble<MarblePost>({ endpoint: `posts/${slug}` });
 }
 
 export async function getCategories() {
-  return fetchFromMarble<MarbleCategoryList>("categories");
+  return fetchFromMarble<MarbleCategoryList>({ endpoint: "categories" });
 }
 
 export async function getAuthors() {
-  return fetchFromMarble<MarbleAuthorList>("authors");
+  return fetchFromMarble<MarbleAuthorList>({ endpoint: "authors" });
 }
 
-export async function processHtmlContent(html: string): Promise<string> {
+export async function processHtmlContent({ html }: { html: string }): Promise<string> {
   const processor = unified()
     .use(rehypeSanitize)
     .use(rehypeParse, { fragment: true })
@@ -59,6 +59,6 @@ export async function processHtmlContent(html: string): Promise<string> {
     .use(rehypeAutolinkHeadings, { behavior: "append" })
     .use(rehypeStringify);
 
-  const file = await processor.process(html);
+  const file = await processor.process({ value: html, type: "html" });
   return String(file);
 }

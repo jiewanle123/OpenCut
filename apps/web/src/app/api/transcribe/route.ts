@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { env } from "@/env";
-import { baseRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { isTranscriptionConfigured } from "@/lib/transcription-utils";
 
 const transcribeRequestSchema = z.object({
@@ -49,18 +49,41 @@ const apiResponseSchema = z.object({
   language: z.string(),
 });
 
+function buildModalRequestBody({ filename, language, decryptionKey, iv }: {
+  filename: string;
+  language: string;
+  decryptionKey?: string;
+  iv?: string;
+}) {
+  const requestBody: Record<string, string> = {
+    filename,
+    language,
+  };
+
+  if (decryptionKey && iv) {
+    requestBody.decryptionKey = decryptionKey;
+    requestBody.iv = iv;
+  }
+
+  return requestBody;
+}
+
+function parseModalError({ errorText }: { errorText: string }) {
+  let errorMessage = "Transcription service unavailable";
+  try {
+    const errorData = JSON.parse(errorText);
+    errorMessage = errorData.error || errorMessage;
+  } catch {}
+  return errorMessage;
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // Rate limiting
-    const ip = request.headers.get("x-forwarded-for") ?? "anonymous";
-    const { success } = await baseRateLimit.limit(ip);
-    const origin = request.headers.get("origin");
-
-    if (!success) {
+    const { limited } = await checkRateLimit({ request });
+    if (limited) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
-    // Check transcription configuration
     const transcriptionCheck = isTranscriptionConfigured();
     if (!transcriptionCheck.configured) {
       console.error(
@@ -77,7 +100,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse and validate request body
     const rawBody = await request.json().catch(() => null);
     if (!rawBody) {
       return NextResponse.json(
@@ -99,19 +121,13 @@ export async function POST(request: NextRequest) {
 
     const { filename, language, decryptionKey, iv } = validationResult.data;
 
-    // Prepare request body for Modal
-    const modalRequestBody: any = {
-      filename,
-      language,
-    };
+    const modalRequestBody = buildModalRequestBody({ 
+      filename, 
+      language, 
+      decryptionKey, 
+      iv 
+    });
 
-    // Add encryption parameters if provided (zero-knowledge)
-    if (decryptionKey && iv) {
-      modalRequestBody.decryptionKey = decryptionKey;
-      modalRequestBody.iv = iv;
-    }
-
-    // Call Modal transcription service
     const response = await fetch(env.MODAL_TRANSCRIPTION_URL, {
       method: "POST",
       headers: {
@@ -124,13 +140,7 @@ export async function POST(request: NextRequest) {
       const errorText = await response.text();
       console.error("Modal API error:", response.status, errorText);
 
-      let errorMessage = "Transcription service unavailable";
-      try {
-        const errorData = JSON.parse(errorText);
-        errorMessage = errorData.error || errorMessage;
-      } catch {
-        // Use default message if parsing fails
-      }
+      const errorMessage = parseModalError({ errorText });
 
       return NextResponse.json(
         {
@@ -144,7 +154,6 @@ export async function POST(request: NextRequest) {
     const rawResult = await response.json();
     console.log("Raw Modal response:", JSON.stringify(rawResult, null, 2));
 
-    // Validate Modal response
     const modalValidation = modalResponseSchema.safeParse(rawResult);
     if (!modalValidation.success) {
       console.error("Invalid Modal API response:", modalValidation.error);
@@ -156,7 +165,6 @@ export async function POST(request: NextRequest) {
 
     const result = modalValidation.data;
 
-    // Prepare and validate API response
     const responseData = {
       text: result.text,
       segments: result.segments,
