@@ -64,7 +64,7 @@ function AuthorList({ authors }: { authors: Author[] }) {
         <div key={author.id} className="flex items-center gap-2">
           <Avatar className="h-6 w-6 shadow-sm">
             <AvatarImage src={author.image} alt={author.name} />
-            <AvatarFallback className="text-sm text-muted-foreground">{author.name}</span>
+            <AvatarFallback className="text-sm text-muted-foreground">{author.name}</AvatarFallback>
           </Avatar>
         </div>
       ))}
