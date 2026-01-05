@@ -1,73 +1,27 @@
-"use client";
-
-import { Header } from "@/components/header";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Link from "next/link";
 import { getPosts } from "@/lib/blog-query";
-import { Post, Author } from "@/types/blog";
-import { Separator } from "@/components/ui/separator";
+import { BlogList } from "./components/blog-list";
 
 export default async function BlogPage() {
-  const data = await getPosts();
-  if (!data || !data.posts) return <div>No posts yet</div>;
+  try {
+    const data = await getPosts();
+    
+    if (!data || !data.posts || data.posts.length === 0) {
+      return <div className="flex min-h-screen items-center justify-center">No posts yet</div>;
+    }
 
-  return (
-    <div className="bg-background min-h-screen">
-      <Header />
-      <main className="container relative mx-auto max-w-3xl px-4 py-16">
-        <BlogHeader />
-        <div className="flex flex-col gap-8">
-          {data.posts.map((post) => (
-            <React.Fragment key={post.id}>
-              <BlogPostItem post={post} />
-              <Separator />
-            </React.Fragment>
-          ))}
-        </div>
-      </main>
-    </div>
-  );
-}
-
-function BlogHeader() {
-  return (
-    <div className="flex flex-col gap-6 pb-20 text-center">
-      <h1 className="text-5xl font-bold tracking-tight md:text-6xl">Blog</h1>
-      <p className="text-muted-foreground mx-auto max-w-2xl text-xl leading-relaxed">
-        Read the latest news and updates about OpenCut, a free and open-source
-        video editor.
-      </p>
-    </div>
-  );
-}
-
-function BlogPostItem({ post }: { post: Post }) {
-  return (
-    <Link href={`/blog/${post.slug}`}>
-      <div className="h-auto w-full opacity-100 transition-opacity hover:opacity-75 flex items-center justify-between">
-        <div className="flex flex-col gap-2">
-          <h2 className="text-xl font-semibold">{post.title}</h2>
-          <p className="text-muted-foreground">{post.description}</p>
-        </div>
-        {post.authors && post.authors.length > 0 && (
-          <AuthorList authors={post.authors} />
-        )}
+    return <BlogList posts={data.posts} />;
+  } catch (error) {
+    console.error("Failed to fetch blog posts:", error);
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-4">
+        <h1 className="text-2xl font-bold">Unable to load blog posts</h1>
+        <p className="text-muted-foreground text-center max-w-md">
+          We're having trouble loading the blog. This might be due to a temporary issue with our content management system.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Please try again later or contact support if the issue persists.
+        </p>
       </div>
-    </Link>
-  );
-}
-
-function AuthorList({ authors }: { authors: Author[] }) {
-  return (
-    <div className="flex items-center gap-2">
-      {authors.map((author) => (
-        <div key={author.id} className="flex items-center gap-2">
-          <Avatar className="h-6 w-6 shadow-sm">
-            <AvatarImage src={author.image} alt={author.name} />
-            <AvatarFallback className="text-sm text-muted-foreground">{author.name}</AvatarFallback>
-          </Avatar>
-        </div>
-      ))}
-    </div>
-  );
+    );
+  }
 }
