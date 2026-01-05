@@ -289,9 +289,20 @@ export function CanvasRenderer({
 
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    // Validate dimensions
+    if (width <= 0 || height <= 0) {
+      console.warn("Invalid canvas dimensions:", { width, height });
+      return;
+    }
+
+    // Validate canvasSize
+    if (!canvasSize || canvasSize.width <= 0 || canvasSize.height <= 0) {
+      console.warn("Invalid canvasSize:", canvasSize);
+      return;
+    }
 
     // Create offscreen canvas for double buffering
     const offscreen = document.createElement("canvas");
@@ -340,6 +351,13 @@ export function CanvasRenderer({
 
     // Copy complete frame to visible canvas in one operation
     ctx.clearRect(0, 0, width, height);
+
+    // Validate offscreen canvas before drawing
+    if (!offscreen || offscreen.width <= 0 || offscreen.height <= 0) {
+      console.warn("Invalid offscreen canvas, skipping frame copy");
+      return;
+    }
+
     ctx.drawImage(offscreen, 0, 0);
 
     // Render complete
@@ -413,13 +431,24 @@ export function CanvasRenderer({
     mediaItem: MediaItem
   ) => {
     try {
+      if (!mediaItem.url) {
+        console.warn("Media item has no URL:", mediaItem);
+        return;
+      }
+
       const img = new Image();
-      img.src = mediaItem.url!;
+      img.src = mediaItem.url;
 
       await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
-        img.onerror = reject;
+        img.onerror = () => reject(new Error("Image load failed"));
       });
+
+      // Validate image dimensions
+      if (img.width <= 0 || img.height <= 0) {
+        console.warn("Invalid image dimensions:", { width: img.width, height: img.height });
+        return;
+      }
 
       // Calculate aspect ratio and positioning
       const imgAspect = img.width / img.height;
@@ -454,6 +483,9 @@ export function CanvasRenderer({
   ) => {
     try {
       if (element.type !== "text") return;
+
+      // Validate element properties
+      if (!element.content) return;
 
       // Convert element coordinates to canvas coordinates
       const scaleX = width / canvasSize.width;
