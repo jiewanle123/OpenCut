@@ -13,7 +13,7 @@ export interface Language {
 interface LanguageSelectProps {
   selectedCountry: string;
   onSelect: (country: string) => void;
-  containerRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.Ref<HTMLDivElement>;
   languages: Language[];
 }
 

@@ -124,7 +124,7 @@ export default function Editor() {
           // For other errors (storage issues, corruption, etc.), don't create new project
           console.error(
             "Project loading failed with recoverable error:",
-            error
+            error,
           );
           // Remove from handled set so user can retry
           handledProjectIds.current.delete(projectId);
@@ -152,20 +152,20 @@ export default function Editor() {
 
   return (
     <EditorProvider>
-      <div className="h-screen w-screen flex flex-col bg-background overflow-hidden">
+      <div className="bg-background flex h-screen w-screen flex-col overflow-hidden">
         <EditorHeader />
-        <div className="flex-1 min-h-0 min-w-0">
+        <div className="min-h-0 min-w-0 flex-1">
           {activePreset === "media" ? (
             <ResizablePanelGroup
               key={`media-${activePreset}-${resetCounter}`}
-              direction="horizontal"
+              orientation="horizontal"
               className="h-full w-full gap-[0.18rem] px-3 pb-3"
             >
               <ResizablePanel
                 defaultSize={toolsPanel}
-                minSize={15}
+                minSize={20}
                 maxSize={40}
-                onResize={setToolsPanel}
+                onResize={(panelSize) => setToolsPanel(panelSize.asPercentage)}
                 className="min-w-0 rounded-sm"
               >
                 <MediaPanel />
@@ -176,28 +176,32 @@ export default function Editor() {
               <ResizablePanel
                 defaultSize={100 - toolsPanel}
                 minSize={60}
-                className="min-w-0 min-h-0"
+                className="min-h-0 min-w-0"
               >
                 <ResizablePanelGroup
-                  direction="vertical"
+                  orientation="vertical"
                   className="h-full w-full gap-[0.18rem]"
                 >
                   <ResizablePanel
                     defaultSize={mainContent}
                     minSize={30}
                     maxSize={85}
-                    onResize={setMainContent}
+                    onResize={(panelSize) =>
+                      setMainContent(panelSize.asPercentage)
+                    }
                     className="min-h-0"
                   >
                     <ResizablePanelGroup
-                      direction="horizontal"
+                      orientation="horizontal"
                       className="h-full w-full gap-[0.19rem]"
                     >
                       <ResizablePanel
                         defaultSize={previewPanel}
                         minSize={30}
-                        onResize={setPreviewPanel}
-                        className="min-w-0 min-h-0 flex-1"
+                        onResize={(panelSize) =>
+                          setPreviewPanel(panelSize.asPercentage)
+                        }
+                        className="min-h-0 min-w-0 flex-1"
                       >
                         <PreviewPanel />
                       </ResizablePanel>
@@ -206,9 +210,11 @@ export default function Editor() {
 
                       <ResizablePanel
                         defaultSize={propertiesPanel}
-                        minSize={15}
+                        minSize={20}
                         maxSize={40}
-                        onResize={setPropertiesPanel}
+                        onResize={(panelSize) =>
+                          setPropertiesPanel(panelSize.asPercentage)
+                        }
                         className="min-w-0"
                       >
                         <PropertiesPanel />
@@ -222,7 +228,9 @@ export default function Editor() {
                     defaultSize={timeline}
                     minSize={15}
                     maxSize={70}
-                    onResize={setTimeline}
+                    onResize={(panelSize) =>
+                      setTimeline(panelSize.asPercentage)
+                    }
                     className="min-h-0"
                   >
                     <Timeline />
@@ -233,35 +241,41 @@ export default function Editor() {
           ) : activePreset === "inspector" ? (
             <ResizablePanelGroup
               key={`inspector-${activePreset}-${resetCounter}`}
-              direction="horizontal"
+              orientation="horizontal"
               className="h-full w-full gap-[0.18rem] px-3 pb-3"
             >
               <ResizablePanel
                 defaultSize={100 - propertiesPanel}
                 minSize={30}
-                onResize={(size) => setPropertiesPanel(100 - size)}
-                className="min-w-0 min-h-0"
+                onResize={(panelSize) =>
+                  setPropertiesPanel(100 - panelSize.asPercentage)
+                }
+                className="min-h-0 min-w-0"
               >
                 <ResizablePanelGroup
-                  direction="vertical"
+                  orientation="vertical"
                   className="h-full w-full gap-[0.18rem]"
                 >
                   <ResizablePanel
                     defaultSize={mainContent}
                     minSize={30}
                     maxSize={85}
-                    onResize={setMainContent}
+                    onResize={(panelSize) =>
+                      setMainContent(panelSize.asPercentage)
+                    }
                     className="min-h-0"
                   >
                     <ResizablePanelGroup
-                      direction="horizontal"
+                      orientation="horizontal"
                       className="h-full w-full gap-[0.19rem]"
                     >
                       <ResizablePanel
                         defaultSize={toolsPanel}
-                        minSize={15}
+                        minSize={20}
                         maxSize={40}
-                        onResize={setToolsPanel}
+                        onResize={(panelSize) =>
+                          setToolsPanel(panelSize.asPercentage)
+                        }
                         className="min-w-0 rounded-sm"
                       >
                         <MediaPanel />
@@ -272,8 +286,10 @@ export default function Editor() {
                       <ResizablePanel
                         defaultSize={previewPanel}
                         minSize={30}
-                        onResize={setPreviewPanel}
-                        className="min-w-0 min-h-0 flex-1"
+                        onResize={(panelSize) =>
+                          setPreviewPanel(panelSize.asPercentage)
+                        }
+                        className="min-h-0 min-w-0 flex-1"
                       >
                         <PreviewPanel />
                       </ResizablePanel>
@@ -286,7 +302,9 @@ export default function Editor() {
                     defaultSize={timeline}
                     minSize={15}
                     maxSize={70}
-                    onResize={setTimeline}
+                    onResize={(panelSize) =>
+                      setTimeline(panelSize.asPercentage)
+                    }
                     className="min-h-0"
                   >
                     <Timeline />
@@ -298,10 +316,12 @@ export default function Editor() {
 
               <ResizablePanel
                 defaultSize={propertiesPanel}
-                minSize={15}
+                minSize={20}
                 maxSize={40}
-                onResize={setPropertiesPanel}
-                className="min-w-0 min-h-0"
+                onResize={(panelSize) =>
+                  setPropertiesPanel(panelSize.asPercentage)
+                }
+                className="min-h-0 min-w-0"
               >
                 <PropertiesPanel />
               </ResizablePanel>
@@ -309,35 +329,41 @@ export default function Editor() {
           ) : activePreset === "vertical-preview" ? (
             <ResizablePanelGroup
               key={`vertical-preview-${activePreset}-${resetCounter}`}
-              direction="horizontal"
+              orientation="horizontal"
               className="h-full w-full gap-[0.18rem] px-3 pb-3"
             >
               <ResizablePanel
                 defaultSize={100 - previewPanel}
                 minSize={30}
-                onResize={(size) => setPreviewPanel(100 - size)}
-                className="min-w-0 min-h-0"
+                onResize={(panelSize) =>
+                  setPreviewPanel(100 - panelSize.asPercentage)
+                }
+                className="min-h-0 min-w-0"
               >
                 <ResizablePanelGroup
-                  direction="vertical"
+                  orientation="vertical"
                   className="h-full w-full gap-[0.18rem]"
                 >
                   <ResizablePanel
                     defaultSize={mainContent}
                     minSize={30}
                     maxSize={85}
-                    onResize={setMainContent}
+                    onResize={(panelSize) =>
+                      setMainContent(panelSize.asPercentage)
+                    }
                     className="min-h-0"
                   >
                     <ResizablePanelGroup
-                      direction="horizontal"
+                      orientation="horizontal"
                       className="h-full w-full gap-[0.19rem]"
                     >
                       <ResizablePanel
                         defaultSize={toolsPanel}
                         minSize={15}
                         maxSize={40}
-                        onResize={setToolsPanel}
+                        onResize={(panelSize) =>
+                          setToolsPanel(panelSize.asPercentage)
+                        }
                         className="min-w-0 rounded-sm"
                       >
                         <MediaPanel />
@@ -347,9 +373,11 @@ export default function Editor() {
 
                       <ResizablePanel
                         defaultSize={propertiesPanel}
-                        minSize={15}
+                        minSize={20}
                         maxSize={40}
-                        onResize={setPropertiesPanel}
+                        onResize={(panelSize) =>
+                          setPropertiesPanel(panelSize.asPercentage)
+                        }
                         className="min-w-0"
                       >
                         <PropertiesPanel />
@@ -363,7 +391,9 @@ export default function Editor() {
                     defaultSize={timeline}
                     minSize={15}
                     maxSize={70}
-                    onResize={setTimeline}
+                    onResize={(panelSize) =>
+                      setTimeline(panelSize.asPercentage)
+                    }
                     className="min-h-0"
                   >
                     <Timeline />
@@ -376,8 +406,10 @@ export default function Editor() {
               <ResizablePanel
                 defaultSize={previewPanel}
                 minSize={30}
-                onResize={setPreviewPanel}
-                className="min-w-0 min-h-0"
+                onResize={(panelSize) =>
+                  setPreviewPanel(panelSize.asPercentage)
+                }
+                className="min-h-0 min-w-0"
               >
                 <PreviewPanel />
               </ResizablePanel>
@@ -385,27 +417,29 @@ export default function Editor() {
           ) : (
             <ResizablePanelGroup
               key={`default-${activePreset}-${resetCounter}`}
-              direction="vertical"
+              orientation="vertical"
               className="h-full w-full gap-[0.18rem]"
             >
               <ResizablePanel
                 defaultSize={mainContent}
                 minSize={30}
                 maxSize={85}
-                onResize={setMainContent}
+                onResize={(panelSize) => setMainContent(panelSize.asPercentage)}
                 className="min-h-0"
               >
                 {/* Main content area */}
                 <ResizablePanelGroup
-                  direction="horizontal"
+                  orientation="horizontal"
                   className="h-full w-full gap-[0.19rem] px-3"
                 >
                   {/* Tools Panel */}
                   <ResizablePanel
                     defaultSize={toolsPanel}
-                    minSize={15}
+                    minSize={20}
                     maxSize={40}
-                    onResize={setToolsPanel}
+                    onResize={(panelSize) =>
+                      setToolsPanel(panelSize.asPercentage)
+                    }
                     className="min-w-0 rounded-sm"
                   >
                     <MediaPanel />
@@ -417,8 +451,10 @@ export default function Editor() {
                   <ResizablePanel
                     defaultSize={previewPanel}
                     minSize={30}
-                    onResize={setPreviewPanel}
-                    className="min-w-0 min-h-0 flex-1"
+                    onResize={(panelSize) =>
+                      setPreviewPanel(panelSize.asPercentage)
+                    }
+                    className="min-h-0 min-w-0 flex-1"
                   >
                     <PreviewPanel />
                   </ResizablePanel>
@@ -427,9 +463,11 @@ export default function Editor() {
 
                   <ResizablePanel
                     defaultSize={propertiesPanel}
-                    minSize={15}
+                    minSize={20}
                     maxSize={40}
-                    onResize={setPropertiesPanel}
+                    onResize={(panelSize) =>
+                      setPropertiesPanel(panelSize.asPercentage)
+                    }
                     className="min-w-0 rounded-sm"
                   >
                     <PropertiesPanel />
@@ -444,7 +482,7 @@ export default function Editor() {
                 defaultSize={timeline}
                 minSize={15}
                 maxSize={70}
-                onResize={setTimeline}
+                onResize={(panelSize) => setTimeline(panelSize.asPercentage)}
                 className="min-h-0 px-3 pb-3"
               >
                 <Timeline />

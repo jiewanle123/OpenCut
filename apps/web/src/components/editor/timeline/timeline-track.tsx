@@ -36,8 +36,8 @@ export function TimelineTrackContent({
   track: TimelineTrack;
   zoomLevel: number;
   onSnapPointChange?: (snapPoint: SnapPoint | null) => void;
-  rulerScrollRef: React.RefObject<HTMLDivElement>;
-  tracksScrollRef: React.RefObject<HTMLDivElement>;
+  rulerScrollRef: React.Ref<HTMLDivElement>;
+  tracksScrollRef: React.Ref<HTMLDivElement>;
 }) {
   const { mediaFiles } = useMediaStore();
   const {

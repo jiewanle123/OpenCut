@@ -36,7 +36,7 @@ export function TextProperties({
 }) {
   const { updateTextElement } = useTimelineStore();
   const { activeTab, setActiveTab } = useTextPropertiesStore();
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   // Local state for input values to allow temporary empty/invalid states
   const [fontSizeInput, setFontSizeInput] = useState(
     element.fontSize.toString()

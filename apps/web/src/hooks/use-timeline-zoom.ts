@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, RefObject } from "react";
 
 interface UseTimelineZoomProps {
-  containerRef: RefObject<HTMLDivElement>;
+  containerRef: React.Ref<HTMLDivElement>;
   isInTimeline?: boolean;
 }
 

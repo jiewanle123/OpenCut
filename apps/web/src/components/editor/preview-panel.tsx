@@ -364,7 +364,7 @@ export function PreviewPanel() {
           <div className="flex items-center gap-2">
             <Button
               size="icon"
-              variant="ghost"
+              variant="text"
               onClick={handleSkipBack}
               aria-label="Skip back 5 seconds"
             >
@@ -383,23 +383,22 @@ export function PreviewPanel() {
             </Button>
             <Button
               size="icon"
-              variant="ghost"
+              variant="text"
               onClick={handleSkipForward}
               aria-label="Skip forward 5 seconds"
             >
               <SkipForward className="h-4 w-4" />
             </Button>
             <EditableTimecode
-              value={currentTime}
-              onChange={setCurrentTime}
-              max={getTotalDuration()}
+              time={currentTime}
+              onTimeChange={setCurrentTime}
             />
           </div>
 
           <div className="flex items-center gap-2">
             <Button
               size="icon"
-              variant="ghost"
+              variant="text"
               onClick={() => setIsExpanded(!isExpanded)}
               aria-label={isExpanded ? "Collapse" : "Expand"}
             >

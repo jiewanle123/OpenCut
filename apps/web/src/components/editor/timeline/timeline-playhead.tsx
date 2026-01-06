@@ -11,12 +11,12 @@ interface TimelinePlayheadProps {
   zoomLevel: number;
   tracks: TimelineTrack[];
   seek: (time: number) => void;
-  rulerRef: React.RefObject<HTMLDivElement>;
-  rulerScrollRef: React.RefObject<HTMLDivElement>;
-  tracksScrollRef: React.RefObject<HTMLDivElement>;
-  trackLabelsRef?: React.RefObject<HTMLDivElement>;
-  timelineRef: React.RefObject<HTMLDivElement>;
-  playheadRef?: React.RefObject<HTMLDivElement>;
+  rulerRef: React.Ref<HTMLDivElement>;
+  rulerScrollRef: React.Ref<HTMLDivElement>;
+  tracksScrollRef: React.Ref<HTMLDivElement>;
+  trackLabelsRef?: React.Ref<HTMLDivElement>;
+  timelineRef: React.Ref<HTMLDivElement>;
+  playheadRef?: React.Ref<HTMLDivElement>;
   isSnappingToPlayhead?: boolean;
 }
 
@@ -154,7 +154,12 @@ export function useTimelinePlayheadRuler({
   rulerScrollRef,
   tracksScrollRef,
   playheadRef,
-}: Omit<TimelinePlayheadProps, "tracks" | "trackLabelsRef" | "timelineRef">) {
+}: Omit<TimelinePlayheadProps, "tracks" | "trackLabelsRef" | "timelineRef"> & {
+  rulerRef: React.Ref<HTMLDivElement>;
+  rulerScrollRef: React.Ref<HTMLDivElement>;
+  tracksScrollRef: React.Ref<HTMLDivElement>;
+  playheadRef?: React.Ref<HTMLDivElement>;
+}) {
   const { handleRulerMouseDown, isDraggingRuler } = useTimelinePlayhead({
     currentTime,
     duration,

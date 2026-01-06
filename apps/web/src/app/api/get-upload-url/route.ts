@@ -8,9 +8,7 @@ import { isTranscriptionConfigured } from "@/lib/transcription-utils";
 
 const uploadRequestSchema = z.object({
   fileExtension: z.enum(["wav", "mp3", "m4a", "flac"], {
-    errorMap: () => ({
-      message: "File extension must be wav, mp3, m4a, or flac",
-    }),
+    message: "File extension must be wav, mp3, m4a, or flac",
   }),
 });
 

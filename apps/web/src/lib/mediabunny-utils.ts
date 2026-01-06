@@ -247,7 +247,7 @@ export const extractTimelineAudio = async (
     }
 
     const data = await ffmpeg.readFile(outputName);
-    const blob = new Blob([data], { type: "audio/wav" });
+    const blob = new Blob([data as unknown as BlobPart], { type: "audio/wav" });
 
     return blob;
   } catch (error) {
@@ -295,7 +295,7 @@ const generateSilentAudio = async (durationSeconds: number): Promise<Blob> => {
     ]);
 
     const data = await ffmpeg.readFile(outputName);
-    const blob = new Blob([data], { type: "audio/wav" });
+    const blob = new Blob([data as unknown as BlobPart], { type: "audio/wav" });
 
     return blob;
   } catch (error) {

@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 interface SelectionBoxProps {
   startPos: { x: number; y: number } | null;
   currentPos: { x: number; y: number } | null;
-  containerRef: React.RefObject<HTMLElement>;
+  containerRef: React.Ref<HTMLDivElement>;
   isActive: boolean;
 }
 
@@ -19,8 +19,8 @@ export function SelectionBox({
 
   useEffect(() => {
     if (!isActive || !startPos || !currentPos || !containerRef.current) return;
-
     const container = containerRef.current;
+    if (!container) return;
     const containerRect = container.getBoundingClientRect();
 
     // Calculate relative positions within the container

@@ -45,11 +45,13 @@ export function PropertyItemLabel({
 export function PropertyItemValue({
   children,
   className,
+  ref,
 }: {
   children: React.ReactNode;
   className?: string;
+  ref?: React.Ref<HTMLDivElement>;
 }) {
-  return <div className={cn("flex-1 text-sm", className)}>{children}</div>;
+  return <div className={cn("flex-1 text-sm", className)} ref={ref}>{children}</div>;
 }
 
 interface PropertyGroupProps {
@@ -68,7 +70,6 @@ export function PropertyGroup({
   titleClassName,
 }: PropertyGroupProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
-
   return (
     <PropertyItem direction="column" className={cn("gap-3", className)}>
       <div

@@ -2,11 +2,11 @@
   "name": "opencut",
   "packageManager": "pnpm@9.12.3",
   "devDependencies": {
-    "@biomejs/biome": "2.1.2",
+    "@biomejs/biome": "2.3.11",
     "husky": "^9.1.7",
-    "turbo": "^2.5.4",
-    "typescript": "5.8.3",
-    "ultracite": "5.0.48"
+    "turbo": "^2.7.3",
+    "typescript": "5.9.3",
+    "ultracite": "7.0.8"
   },
   "workspaces": [
     "apps/*",
@@ -20,10 +20,10 @@
     "format": "npx ultracite@latest format"
   },
   "dependencies": {
-    "mediabunny": "^1.9.3",
-    "next": "^15.5.7",
+    "mediabunny": "^1.27.3",
+    "next": "^16.1.1",
     "react-country-flag": "^3.1.0",
-    "wavesurfer.js": "^7.9.8"
+    "wavesurfer.js": "^7.12.1"
   },
   "trustedDependencies": [
     "@tailwindcss/oxide"

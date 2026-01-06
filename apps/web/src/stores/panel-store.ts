@@ -17,23 +17,23 @@ interface PanelSizes {
 
 export const PRESET_CONFIGS: Record<PanelPreset, PanelSizes> = {
   default: {
-    toolsPanel: 25,
+    toolsPanel: 30,
     previewPanel: 50,
-    propertiesPanel: 25,
+    propertiesPanel: 30,
     mainContent: 70,
     timeline: 30,
   },
   media: {
-    toolsPanel: 30,
+    toolsPanel: 35,
     previewPanel: 45,
-    propertiesPanel: 25,
+    propertiesPanel: 30,
     mainContent: 100,
     timeline: 25,
   },
   inspector: {
-    toolsPanel: 30,
+    toolsPanel: 35,
     previewPanel: 70,
-    propertiesPanel: 30,
+    propertiesPanel: 35,
     mainContent: 75,
     timeline: 25,
   },

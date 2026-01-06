@@ -2,16 +2,16 @@
 
 import { useRef, useEffect, useCallback, useMemo } from "react";
 import { useTimelineStore } from "@/stores/timeline-store";
-import { useMediaStore, type MediaItem } from "@/stores/media-store";
+import { useMediaStore } from "@/stores/media-store";
+import type { MediaFile } from "@/types/media";
 import { usePlaybackStore } from "@/stores/playback-store";
-import { useEditorStore } from "@/stores/editor-store";
 import { useProjectStore } from "@/stores/project-store";
 import { TimelineElement, TimelineTrack } from "@/types/timeline";
 
 interface ActiveElement {
   element: TimelineElement;
   track: TimelineTrack;
-  mediaItem: MediaItem | null;
+  mediaItem: MediaFile | null;
 }
 
 interface CanvasRendererProps {
@@ -214,10 +214,10 @@ export function CanvasRenderer({
 }: CanvasRendererProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { tracks } = useTimelineStore();
-  const { mediaItems } = useMediaStore();
+  const { mediaFiles } = useMediaStore();
   const { currentTime } = usePlaybackStore();
-  const { canvasSize } = useEditorStore();
   const { activeProject } = useProjectStore();
+  const canvasSize = activeProject?.canvasSize || { width: 1920, height: 1080 };
 
   // Convert timeline time to frame number
   const timeToFrame = useCallback(
@@ -262,16 +262,15 @@ export function CanvasRenderer({
             mediaItem =
               element.mediaId === "test"
                 ? null
-                : mediaItems.find((item) => item.id === element.mediaId) ||
+                : mediaFiles.find((item) => item.id === element.mediaId) ||
                   null;
           }
           activeElements.push({ element, track, mediaItem });
         }
       });
     });
-
     return activeElements;
-  }, [tracks, mediaItems, currentTime, timeToFrame]);
+  }, [tracks, mediaFiles, currentTime, timeToFrame]);
 
   // Calculate video time for an element
   const calculateVideoTime = useCallback(
@@ -367,7 +366,7 @@ export function CanvasRenderer({
   const renderVideoElement = async (
     ctx: CanvasRenderingContext2D,
     element: TimelineElement,
-    mediaItem: MediaItem
+    mediaItem: MediaFile
   ) => {
     try {
       const videoTime = calculateVideoTime(element);
@@ -428,7 +427,7 @@ export function CanvasRenderer({
   const renderImageElement = async (
     ctx: CanvasRenderingContext2D,
     element: TimelineElement,
-    mediaItem: MediaItem
+    mediaItem: MediaFile
   ) => {
     try {
       if (!mediaItem.url) {

@@ -10,9 +10,9 @@ interface SnapIndicatorProps {
   zoomLevel: number;
   isVisible: boolean;
   tracks: TimelineTrack[];
-  timelineRef: React.RefObject<HTMLDivElement>;
-  trackLabelsRef?: React.RefObject<HTMLDivElement>;
-  tracksScrollRef: React.RefObject<HTMLDivElement>;
+  timelineRef: React.Ref<HTMLDivElement>;
+  trackLabelsRef?: React.Ref<HTMLDivElement>;
+  tracksScrollRef: React.Ref<HTMLDivElement>;
 }
 
 export function SnapIndicator({

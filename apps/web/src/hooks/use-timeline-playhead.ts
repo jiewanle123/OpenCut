@@ -9,10 +9,10 @@ interface UseTimelinePlayheadProps {
   duration: number;
   zoomLevel: number;
   seek: (time: number) => void;
-  rulerRef: React.RefObject<HTMLDivElement>;
-  rulerScrollRef: React.RefObject<HTMLDivElement>;
-  tracksScrollRef: React.RefObject<HTMLDivElement>;
-  playheadRef?: React.RefObject<HTMLDivElement>;
+  rulerRef: React.Ref<HTMLDivElement>;
+  rulerScrollRef: React.Ref<HTMLDivElement>;
+  tracksScrollRef: React.Ref<HTMLDivElement>;
+  playheadRef?: React.Ref<HTMLDivElement>;
 }
 
 export function useTimelinePlayhead({
