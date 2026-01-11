@@ -8,6 +8,7 @@ export interface ExportOptions {
   includeAudio?: boolean;
   onProgress?: (progress: number) => void;
   onCancel?: () => boolean;
+  onCancelled?: () => void;
 }
 
 export interface ExportResult {

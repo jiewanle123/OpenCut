@@ -96,7 +96,7 @@ function ExportPopover({
       fps: activeProject.fps,
       includeAudio,
       onProgress: setProgress,
-      onCancel: () => false, // TODO: Add cancel functionality
+      onCancel: handleCancel,
     });
 
     setIsExporting(false);
@@ -121,6 +121,12 @@ function ExportPopover({
       setExportResult(null);
       setProgress(0);
     }
+  };
+
+  const handleCancel = () => {
+    setIsExporting(false);
+    setExportResult(null);
+    setProgress(0);
   };
 
   const handleClose = () => {
@@ -254,7 +260,7 @@ function ExportPopover({
                   <Button
                     variant="outline"
                     className="rounded-md w-full"
-                    onClick={() => {}}
+                    onClick={handleCancel}
                   >
                     Cancel
                   </Button>

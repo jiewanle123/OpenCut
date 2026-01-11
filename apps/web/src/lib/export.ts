@@ -45,7 +45,8 @@ async function createTimelineAudioBuffer(
   tracks: TimelineTrack[],
   mediaFiles: MediaFile[],
   duration: number,
-  sampleRate: number = 44100
+  sampleRate: number = 44100,
+  quality: "high" | "medium" | "low" = "high"
 ): Promise<AudioBuffer | null> {
   // Get Web Audio context
   const audioContext = new (window.AudioContext ||
@@ -103,7 +104,7 @@ async function createTimelineAudioBuffer(
     sampleRate
   );
 
-  // Mix all audio elements
+  // Mix all audio elements with quality-based resampling
   for (const element of audioElements) {
     if (element.muted) continue;
 
@@ -121,11 +122,12 @@ async function createTimelineAudioBuffer(
     const sourceLengthSamples = Math.floor(sourceDuration * buffer.sampleRate);
     const outputStartSample = Math.floor(startTime * sampleRate);
 
-    // Resample if needed (simple approach)
+    // Quality-based resampling settings
+    const needsResampling = buffer.sampleRate !== sampleRate;
     const resampleRatio = sampleRate / buffer.sampleRate;
     const resampledLength = Math.floor(sourceLengthSamples * resampleRatio);
 
-    // Mix each channel
+    // Mix each channel with improved resampling
     for (let channel = 0; channel < outputChannels; channel++) {
       const outputData = outputBuffer.getChannelData(channel);
       const sourceChannel = Math.min(channel, buffer.numberOfChannels - 1);
@@ -135,11 +137,56 @@ async function createTimelineAudioBuffer(
         const outputIndex = outputStartSample + i;
         if (outputIndex >= outputLength) break;
 
-        // Simple resampling (could be improved with proper interpolation)
-        const sourceIndex = sourceStartSample + Math.floor(i / resampleRatio);
-        if (sourceIndex >= sourceData.length) break;
+        // Improved resampling with linear interpolation
+        let sourceIndex: number;
+        let sampleValue: number;
 
-        outputData[outputIndex] += sourceData[sourceIndex];
+        if (needsResampling) {
+          const exactSourceIndex = i / resampleRatio;
+          const sourceIndexFloor = Math.floor(exactSourceIndex);
+          const sourceIndexCeil = Math.ceil(exactSourceIndex);
+
+          // Linear interpolation based on quality
+          if (quality === "high") {
+            const fraction = exactSourceIndex - sourceIndexFloor;
+            const idx1 = sourceIndexFloor;
+            const idx2 = Math.min(sourceIndexCeil, sourceData.length - 1);
+
+            if (idx1 >= 0 && idx2 < sourceData.length) {
+              const val1 = sourceData[idx1];
+              const val2 = sourceData[idx2];
+              sampleValue = val1 + (val2 - val1) * fraction;
+            } else if (idx1 >= 0) {
+              sampleValue = sourceData[idx1];
+            } else if (idx2 < sourceData.length) {
+              sampleValue = sourceData[idx2];
+            } else {
+              sampleValue = 0;
+            }
+          } else if (quality === "medium") {
+            const idx = Math.round(exactSourceIndex);
+            if (idx >= 0 && idx < sourceData.length) {
+              sampleValue = sourceData[idx];
+            } else {
+              sampleValue = 0;
+            }
+          } else {
+            const idx = Math.floor(exactSourceIndex);
+            if (idx >= 0 && idx < sourceData.length) {
+              sampleValue = sourceData[idx];
+            } else {
+              sampleValue = 0;
+            }
+          }
+        } else {
+          sourceIndex = Math.floor(i / resampleRatio);
+          if (sourceIndex >= sourceData.length) break;
+          sampleValue = sourceData[sourceIndex];
+        }
+
+        if (outputIndex < outputLength) {
+          outputData[outputIndex] += sampleValue;
+        }
       }
     }
   }
@@ -210,7 +257,8 @@ export async function exportProject(
       audioBuffer = await createTimelineAudioBuffer(
         tracks,
         mediaFiles,
-        duration
+        duration,
+        quality
       );
 
       if (audioBuffer) {
